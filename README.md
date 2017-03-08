@@ -6,4 +6,4 @@ Currently supports downloading from: imgur.com , redd.it
 Implemented using:  PRAW , imgurpython
 
 ###Special thanks to: 
-@iliastsa
+@[iliastsa](https://github.com/iliastsa)
