@@ -3,12 +3,15 @@ import sys
 import requests
 import urllib
 import praw
+import prawcore
 import os.path
 from imgurpython import ImgurClient
 import BeautifulSoup
 
 import ConfigParser
 
+green = '\033[92m'
+resetCol = '\033[0m'
 pathFolder = "downloaded_images"
 counter = 0
 client_idImgur = ""
@@ -79,7 +82,7 @@ def downloadFile(filename,url):
 	            downloaded += len(packet)
 	            file.write(packet)
 	            progress = 50 * downloaded/fsize
-	            sys.stdout.write("\r[%s%s%s]" % ('=' * int(progress-1),'>', ' ' * (49 - int(progress))))
+	            sys.stdout.write("\r[%s%s%s%s%s]" % (green,'=' * int(progress-1),'>', ' ' * (49 - int(progress)), resetCol))
 	            sys.stdout.flush()
 	    print
 	    counter += 1
@@ -93,13 +96,16 @@ def main():
     client_secretImgur = config.get('credentials', 'client_secret')
     reddit = praw.Reddit('bot1')
     subName = raw_input("Enter desired subreddit:")
-    #try:
-    subreddit = reddit.subreddit(subName)
+
     try:
-    	subreddit.hot(1)
-    except praw.exceptions.PrawcoreException:
-		print "Subbreddit doesn't exist,exiting.."
-		sys.exit()
+        subreddit = reddit.subreddit(subName)
+        for submission in subreddit.hot(limit=1):
+            title = submission.title
+    except (praw.exceptions.PRAWException, prawcore.Redirect) as e:
+        print e
+        print "Subbreddit doesn't exist,exiting.."
+        sys.exit()
+
     global pathFolder
     pathFolder += subName
     if not os.path.exists(pathFolder):
@@ -108,6 +114,7 @@ def main():
     chars = ['!','.',' ','(',')','[',']','\\','/','?','*','|',",",':',"\""]
     first = True
     maxLimit = raw_input('Enter amount of posts to scan:')
+    maxLimit = int(maxLimit)
     global counter
     counter = 1
     for submission in subreddit.hot(limit=maxLimit):
