@@ -121,6 +121,8 @@ def main():
         title = submission.title
         for char in chars:
             title = title.replace(char,'_')
+        if not hasattr(submission,'post_hint'):
+        	continue
         if(submission.post_hint == 'image'):
          	redditSave(submission,title)
         elif submission.post_hint == 'link' and submission.domain == 'imgur.com':
